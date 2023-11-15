@@ -1,1 +1,0 @@
-CREATE DATABASE covid_analysis;
