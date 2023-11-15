@@ -1,12 +1,104 @@
-/*Handling Missing Data*/
-UPDATE covid_data SET deaths = 0 WHERE deaths IS NULL;
-UPDATE covid_data SET recovered = 0 WHERE recovered IS NULL;
-UPDATE covid_data SET active = 0 WHERE active IS NULL;
+/* Function for Handling Missing Data */
+CREATE OR REPLACE FUNCTION handle_missing_data(table_name text) RETURNS void AS $$
+BEGIN
+    EXECUTE 'UPDATE ' || table_name || ' SET deaths = 0 WHERE deaths IS NULL;';
+    EXECUTE 'UPDATE ' || table_name || ' SET recovered = 0 WHERE recovered IS NULL;';
+    EXECUTE 'UPDATE ' || table_name || ' SET active = 0 WHERE active IS NULL;';
+END;
+$$ LANGUAGE plpgsql;
 
-/*Converting Data Types. Ensure that the data types of each column are appropriate for the type of data. For example, if 'incident_rate' and 'case_fatality_ratio' are stored as text but should be numeric for calculations*/
-ALTER TABLE covid_data
-ALTER COLUMN incident_rate TYPE DECIMAL USING incident_rate::DECIMAL,
-ALTER COLUMN case_fatality_ratio TYPE DECIMAL USING case_fatality_ratio::DECIMAL;
+/*Function for Converting Data Types.
+Ensure that the data types of each column are appropriate for the type of data.
+For example, if 'incident_rate' and 'case_fatality_ratio' are stored as text,
+but should be numeric for calculations*/
+CREATE OR REPLACE FUNCTION convert_data_types(table_name text) RETURNS void AS $$
+BEGIN
+    EXECUTE 'ALTER TABLE ' || table_name || ' 
+             ALTER COLUMN incident_rate TYPE DECIMAL USING incident_rate::DECIMAL,
+             ALTER COLUMN case_fatality_ratio TYPE DECIMAL USING case_fatality_ratio::DECIMAL;';
+END;
+$$ LANGUAGE plpgsql;
+
+/* Function for Adding & Updating new columns for recalculations */
+CREATE OR REPLACE FUNCTION add_update_columns(table_name text) RETURNS void AS $$
+BEGIN
+    EXECUTE 'ALTER TABLE ' || table_name || ' ADD COLUMN IF NOT EXISTS population INTEGER;';
+    EXECUTE 'UPDATE ' || table_name || ' SET population = COALESCE(deaths, 0) + COALESCE(confirmed, 0) + COALESCE(active, 0) + COALESCE(recovered, 0);';
+
+    EXECUTE 'ALTER TABLE ' || table_name || ' ADD COLUMN IF NOT EXISTS recalculated_incident_rate DECIMAL;';
+    EXECUTE 'UPDATE ' || table_name || ' SET recalculated_incident_rate = (confirmed::DECIMAL / population) * 1000000 WHERE population IS NOT NULL AND population > 0;';
+
+    EXECUTE 'ALTER TABLE ' || table_name || ' ADD COLUMN IF NOT EXISTS recalculated_cfr DECIMAL;';
+    EXECUTE 'WITH cfr_aggregation AS (
+                 SELECT country_region, SUM(deaths) AS total_deaths, SUM(confirmed) AS total_confirmed
+                 FROM ' || table_name || ' 
+                 GROUP BY country_region
+             )
+             UPDATE ' || table_name || ' 
+             SET recalculated_cfr = (total_deaths / NULLIF(total_confirmed, 0)) * 100
+             FROM cfr_aggregation
+             WHERE ' || table_name || '.country_region = cfr_aggregation.country_region;';
+END;
+$$ LANGUAGE plpgsql;
+
+/* Function for Renaming columns */
+CREATE OR REPLACE FUNCTION rename_column(table_name text, old_column_name text, new_column_name text) RETURNS void AS $$
+BEGIN
+    EXECUTE 'ALTER TABLE ' || table_name || ' RENAME COLUMN ' || old_column_name || ' TO ' || new_column_name || ';';
+END;
+$$ LANGUAGE plpgsql;
+
+/* Join the two tables on Country_region */
+--Country_Region, Last_Update, Confirmed, Deaths, Recovered, Active, Incident_Rate, Case_Fatality_Ratio
+SELECT
+    covid_data.country_region,
+    covid_data.last_update_12,
+    covid_data.last_update_13,
+    covid_data.confirmed_12,
+    covid_data.confirmed_13,
+    covid_data.deaths_12,
+    covid_data.deaths_13,
+    covid_data.recovered_12,
+    covid_data.recovered_13,
+    covid_data.active_12,
+    covid_data.active_13,
+    covid_data.incident_rate_12,
+    covid_data.incident_rate_13,
+    covid_data.cfr_12,
+    covid_data.cfr_13
+FROM 
+    (
+        SELECT
+            COALESCE(a.country_region, b.country_region) AS country_region, --COALESCE(a.country_region, b.country_region) is used to ensure that the country_region is displayed even if it's present in only one of the two tables.
+            a.Last_Update AS last_update_12,
+            b.Last_Update AS last_update_13,
+            a.Confirmed AS confirmed_12,
+            b.Confirmed AS confirmed_13,
+            a.Deaths AS deaths_12,
+            b.Deaths AS deaths_13,
+            a.Recovered AS recovered_12,
+            b.Recovered AS recovered_13,
+            a.Active AS active_12,
+            b.Active AS active_13,
+            a.Incident_Rate AS incident_rate_12,
+            b.Incident_Rate AS incident_rate_13,
+            a.Case_Fatality_Ratio AS cfr_12,
+            b.Case_Fatality_Ratio AS cfr_13
+        FROM 
+            covid_data_12 a
+        FULL OUTER JOIN 
+            covid_data_13 b 
+        ON 
+            a.country_region = b.country_region
+    ) AS covid_data
+ORDER BY 
+    covid_data.country_region;
+
+/* Apply the functions on the merged table */
+SELECT handle_missing_data('covid_data');
+SELECT convert_data_types('covid_data');
+SELECT add_update_columns('covid_data');
+SELECT rename_column('covid_data', 'last_update', 'date_reported');
 
 /*Total Counts by Country*/
 SELECT country_region, SUM(confirmed) AS total_confirmed, SUM(deaths) AS total_deaths
