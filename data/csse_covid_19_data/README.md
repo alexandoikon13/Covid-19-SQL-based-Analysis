@@ -3,13 +3,11 @@
 ## Table of contents
 
  * [Daily reports (csse_covid_19_daily_reports)](#daily-reports-csse_covid_19_daily_reports)
- * [USA daily state reports (csse_covid_19_daily_reports_us)](#usa-daily-state-reports-csse_covid_19_daily_reports_us)
  * [Time series summary (csse_covid_19_time_series)](#time-series-summary-csse_covid_19_time_series)
  * [Data modification records](#data-modification-records)
  * [Retrospective reporting of (probable) cases and deaths](#retrospective-reporting-of-probable-cases-and-deaths)
  * [Large-scale back distributions](#large-scale-back-distributions)
  * [Irregular Update Schedules](#irregular-update-schedules)
- * [UID Lookup Table Logic](#uid-lookup-table-logic)
 ---
 
 ## [Daily reports (csse_covid_19_daily_reports)](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports)
@@ -49,9 +47,6 @@ Refer to the [mainpage](https://github.com/CSSEGISandData/COVID-19).
 3. All historic data is archived in [archived_data](https://github.com/CSSEGISandData/COVID-19/tree/master/archived_data).
 
 ---
-## [USA daily state reports (csse_covid_19_daily_reports_us)](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports_us)
-
-This table contains an aggregation of each USA State level data.
 
 ### File naming convention
 MM-DD-YYYY.csv in UTC.
