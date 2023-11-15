@@ -8,6 +8,7 @@ CREATE TABLE covid_data (
     Long_ NUMERIC,
     Confirmed INTEGER,
     Deaths INTEGER,
+    Recovered INTEGER,
     Active INTEGER,
     Combined_Key VARCHAR(50),
     Incident_Rate NUMERIC,
