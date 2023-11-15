@@ -4,6 +4,9 @@ CREATE DATABASE covid_analysis;
 /* Create Schema for the tables based on a Template Table */
 CREATE SCHEMA covid_data_schema;
 
+/* Ensure the encoding of the client matches the database server*/
+SET client_encoding TO 'UTF8';
+
 /* Template Table to use for the Schema */
 CREATE TABLE covid_data_schema.template_table (
     FIPS INT,
