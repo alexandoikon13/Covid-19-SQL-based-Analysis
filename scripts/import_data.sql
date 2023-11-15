@@ -29,19 +29,19 @@ CREATE TABLE covid_data_schema.covid_data_13 (LIKE covid_data_schema.template_ta
 \copy covid_data from 'C:/Users/alexa/Dropbox/My PC (LAPTOP-TALO5C9C)/Desktop/Study Challenge/myportfolio/Projects_VSCode/Covid-19-SQL-based-Analysis/data/csse_covid_19_data/csse_covid_19_daily_reports/11-12-2022.csv' DELIMITER ',' CSV HEADER;
 \copy covid_data from 'C:/Users/alexa/Dropbox/My PC (LAPTOP-TALO5C9C)/Desktop/Study Challenge/myportfolio/Projects_VSCode/Covid-19-SQL-based-Analysis/data/csse_covid_19_data/csse_covid_19_daily_reports/11-13-2022.csv' DELIMITER ',' CSV HEADER;
 
-/* Drop unnecessary columns from the table */
-ALTER TABLE covid_data_12
-DROP COLUMN FIPS,
-DROP COLUMN Admin2,
-DROP COLUMN Province_State,
-DROP COLUMN Lat,
-DROP COLUMN Long_,
-DROP COLUMN Combined_Key;
+/* Function for Dropping the unnecessary columns */
+CREATE OR REPLACE FUNCTION drop_unnecessary_columns(table_name TEXT) RETURNS void AS $$
+BEGIN
+    EXECUTE 'ALTER TABLE ' || table_name || '
+             DROP COLUMN IF EXISTS FIPS,
+             DROP COLUMN IF EXISTS Admin2,
+             DROP COLUMN IF EXISTS Province_State,
+             DROP COLUMN IF EXISTS Lat,
+             DROP COLUMN IF EXISTS Long_,
+             DROP COLUMN IF EXISTS Combined_Key;';
+END;
+$$ LANGUAGE plpgsql;
 
-ALTER TABLE covid_data_13
-DROP COLUMN FIPS,
-DROP COLUMN Admin2,
-DROP COLUMN Province_State,
-DROP COLUMN Lat,
-DROP COLUMN Long_,
-DROP COLUMN Combined_Key;
+/* Apply the function */
+SELECT drop_unnecessary_columns('covid_data_12');
+SELECT drop_unnecessary_columns('covid_data_13');
