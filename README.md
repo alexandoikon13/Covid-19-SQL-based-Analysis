@@ -54,8 +54,6 @@ Several functions are created to preprocess the data:
 - A view ('covid_data_view') is created to focus on recalculated incident rates and case fatality ratios.
 - The top incident rates are identified using a window function for a refined analysis.
 
-#############################################################################################################################
-#### TODO:
 ## Data Visualization in Power BI
 The processed and analyzed data will be exported and used in Power BI for visualization. The visualizations will include:
 - Interactive maps showing global spread and impact.
@@ -66,7 +64,6 @@ The processed and analyzed data will be exported and used in Power BI for visual
 ### Usage in Power BI
 - Import the processed data from PostgreSQL into Power BI.
 - Create visualizations and dashboards using Power BI's extensive tools and features.
-- Share the Power BI reports and dashboards with relevant stakeholders for informed decision-making and public awareness.
 
 ## Conclusion
 This project, through its comprehensive data analysis and subsequent visualization in Power BI, aims to provide valuable insights into the COVID-19 pandemic, aiding in understanding its impact and guiding response efforts.
