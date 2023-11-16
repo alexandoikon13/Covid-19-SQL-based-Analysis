@@ -70,3 +70,6 @@ The processed and analyzed data will be exported and used in Power BI for visual
 
 # Conclusion
 This project, through its comprehensive data analysis and subsequent visualization in Power BI, aims to provide valuable insights into the COVID-19 pandemic, aiding in understanding its impact and guiding response efforts.
+
+
+### MIT License
