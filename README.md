@@ -63,7 +63,7 @@ The processed and analyzed data will be exported and used in Power BI for visual
 - Comparative analyses of different regions based on incident rates and case fatality ratios.
 - Dashboards to display key metrics and insights, enabling easy understanding and tracking of the pandemic's trends.
 
-## Usage in Power BI
+### Usage in Power BI
 - Import the processed data from PostgreSQL into Power BI.
 - Create visualizations and dashboards using Power BI's extensive tools and features.
 - Share the Power BI reports and dashboards with relevant stakeholders for informed decision-making and public awareness.
